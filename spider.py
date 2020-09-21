@@ -6,14 +6,14 @@ import requests
 import csv
 from bs4 import BeautifulSoup
 
-source = requests.get("https://tieba.baidu.com/p/6970589236").content.decode()
+source = requests.get("https://tieba.baidu.com/p/6970036603").content.decode()
 soup = BeautifulSoup(source, "lxml")
 # print(soup)
 # 获取帖子内容
 info = soup.find(class_="p_postlist")
 
 # 获取帖子内容
-answer_list = info.find_all(class_=re.compile("l_post j_l_post l_post_bright*"))
+answer_list = info.find_all(class_=re.compile("l_post*"))
 
 data = []
 for answer in answer_list:
