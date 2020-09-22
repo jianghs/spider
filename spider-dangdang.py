@@ -13,9 +13,10 @@ def main(page):
     url = "http://bang.dangdang.com/books/fivestars/01.00.00.00.00.00-recent30-0-0-1-" + str(page)
     # html = request_dangdang(url)
 
-    source = requests.get(url).content.decode(encoding='gb2312')
-    # print(source)
-    html = BeautifulSoup(source, "lxml")
+    response = requests.get(url)
+    response.encoding = "gb2312"
+    print(response.text)
+    html = BeautifulSoup(response.text, "lxml")
     book = html.find(class_="bang_list clearfix bang_list_mode")
     book_list = book.find_all("li")
     print(book_list[0])
