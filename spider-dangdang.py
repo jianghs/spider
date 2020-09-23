@@ -1,62 +1,66 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
-
+import json
 import re
 import requests
 import io
 import sys
 from bs4 import BeautifulSoup
-# sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding='gb2312')
+import chardet
+
+sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding='GB18030')
 
 
 def main(page):
     url = "http://bang.dangdang.com/books/fivestars/01.00.00.00.00.00-recent30-0-0-1-" + str(page)
-    # html = request_dangdang(url)
+    html = request_dangdang(url)
 
-    response = requests.get(url)
-    response.encoding = "gb2312"
-    print(response.text)
-    html = BeautifulSoup(response.text, "lxml")
     book = html.find(class_="bang_list clearfix bang_list_mode")
     book_list = book.find_all("li")
-    print(book_list[0])
 
-    # # 解析过滤我们想要的信息
-    # items = parse_result(html)
-    #
-    # for item in items:
-    #     print(item)
-    #     # write_item_to_file(item)
+    # 解析过滤我们想要的信息
+    items = parse_result(book_list)
+    for item in items:
+        # print(item)
+        write_item_to_file(item)
 
 
 def request_dangdang(url):
     try:
         response = requests.get(url)
         if response.status_code == 200:
-            return response.text
+            response.encoding = "GB18030"
+            html = BeautifulSoup(response.text, "lxml")
+            return html
     except requests.RequestException:
         return None
 
 
-def parse_result(html):
-    pattern = re.compile(
-        '<li>.*?list_num.*?(\d+).</div>.*?<img src="(.*?)".*?class="name".*?title="(.*?)">.*?class="star">.*?class="tuijian">(.*?)</span>.*?class="publisher_info">.*?target="_blank">(.*?)</a>.*?class="biaosheng">.*?<span>(.*?)</span></div>.*?<p><span\sclass="price_n">&yen;(.*?)</span>.*?</li>',
-        re.S)
-    items = re.findall(pattern, html)
+def parse_result(items):
     for item in items:
+        author = ""
+        if item.find_all(class_="publisher_info")[0].a:
+            author = item.find_all(class_="publisher_info")[0].a.text
+        else:
+            author = item.find_all(class_="publisher_info")[0].text
+
         yield {
-            'range': item[0],
-            'image': item[1],
-            'title': item[2],
-            'recommend': item[3],
-            'author': item[4],
-            'times': item[5],
-            'price': item[6]
+            'range': item.find(class_="list_num").text,
+            'image': item.find(class_="pic").a.img["src"],
+            'title': item.find(class_="name").a.text,
+            'recommend': item.find(class_="star").find(class_="tuijian").text,
+            'author': author,
+            'times': item.find(class_="biaosheng").span.text,
+            'price': item.find(class_="price").find(class_="price_n").text.replace("¥", "")
         }
 
 
 def write_item_to_file(item):
-    pass
+    with open('book.txt', 'a', encoding='UTF-8') as f:
+        f.write(json.dumps(item, ensure_ascii=False) + '\n')
+        f.close()
 
 
-main(1)
+if __name__ == "__main__":
+    for i in range(1, 26):
+        main(i)
