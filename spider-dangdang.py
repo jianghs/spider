@@ -1,12 +1,10 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 import json
-import re
 import requests
 import io
 import sys
 from bs4 import BeautifulSoup
-import chardet
 
 sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding='GB18030')
 
