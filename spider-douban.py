@@ -10,7 +10,7 @@ sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding='GB18030')
 
 
 def main(page):
-    url = "http://bang.dangdang.com/books/fivestars/01.00.00.00.00.00-recent30-0-0-1-" + str(page)
+    url = "https://movie.douban.com/top250?start=" + str(page)
     html = request_dangdang(url)
 
     book = html.find(class_="bang_list clearfix bang_list_mode")
