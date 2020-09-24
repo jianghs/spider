@@ -1,10 +1,7 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
-import json
 import requests
 import xlwt
-import io
-import sys
 from bs4 import BeautifulSoup
 
 
