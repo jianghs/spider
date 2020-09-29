@@ -7,6 +7,22 @@ from selenium import webdriver
 from selenium.webdriver.common.by import By
 from bs4 import BeautifulSoup
 
+
+def printResult(videos):
+    for video in videos:
+        url = video.a["href"].replace("//", "")
+        title = video.find(class_="headline clearfix").a["title"].replace("\n", "")
+        watch_num = video.find(class_="tags").find(class_="so-icon watch-num").text.replace("\n", "")
+        danmu_num = video.find(class_="tags").find(class_="so-icon hide").text.replace("\n", "")
+        up_time = video.find(class_="tags").find(class_="so-icon time").text.replace("\n", "")
+        uper = video.find(class_="tags").find(class_="up-name").text
+        print(url, title, watch_num, danmu_num, up_time, uper)
+
+
+def next_page():
+    pass
+
+
 if __name__ == "__main__":
     driver_url = r"D:\software\edgedriver_win64\msedgedriver.exe"
     browser = webdriver.Edge(executable_path=driver_url)
@@ -27,16 +43,24 @@ if __name__ == "__main__":
     browser.switch_to.window(all_h[1])
     # 搜索结果
     WAIT.until(ec.presence_of_element_located((By.XPATH, "/html/body/div[3]/div/div[2]/div/div[1]/div[2]/ul")))
+    next_button = WAIT.until(ec.element_to_be_clickable((By.XPATH, "/html/body/div[3]/div/div[2]/div/div[1]/div[3]/div/ul/li[9]/button")))
 
-    html = browser.page_source
-    soup = BeautifulSoup(html, "lxml")
-    video_list = soup.find_all(class_="video-item matrix")
+    while next_button:
 
-    for video in video_list:
-        url = video.a["href"]
-        title = video.find(class_="headline clearfix").a["title"]
-        watch_num = video.find(class_="headline clearfix").find(class_="so-icon watch-num").text
-        danmu_num = video.find(class_="headline clearfix").find(class_="so-icon hide").text
-        up_time = video.find(class_="headline clearfix").find(class_="so-icon time").text
-        uper = video.find(class_="headline clearfix").find(class_="so-icon").a.text
-        print(url, title, watch_num, danmu_num, up_time, uper)
+        html = browser.page_source
+        soup = BeautifulSoup(html, "lxml")
+        video_list = soup.find_all(class_="video-item matrix")
+        printResult(video_list)
+
+        # 点击下一页
+        next_button.click()
+        # 页面加载完成
+        WAIT.until(ec.presence_of_element_located((By.XPATH, "/html/body/div[3]/div/div[2]/div/div[1]/div[2]/ul")))
+        # 获取下一页按钮
+        next_button = WAIT.until(ec.element_to_be_clickable(
+            (By.XPATH, "/html/body/div[3]/div/div[2]/div/div[1]/div[3]/div/ul/li[9]/button")))
+
+
+
+
+
